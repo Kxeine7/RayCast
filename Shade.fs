@@ -193,7 +193,7 @@ float heartf(float xcoord, float ycoord)
 float crossf(float x, float y)
 {
     float t = 0.2; // thickness
-    float vertical_bar_f = pow(x / t, 2) + pow(y, 2);
+    float vertical_bar_f = pow(x / t, 2) + pow(y / 0.5, 2); // Scaled y to make vertical bar taller
     float horizontal_bar_f = pow(x, 2) + pow(y / t, 2);
     return min(vertical_bar_f, horizontal_bar_f);
 }
@@ -251,49 +251,3 @@ vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords
         float cx1 = hscale * 7.1 * sin(1 + 7 * i + floor(t/7 + i2));
         float cy1 = hscale * 9.5 * sin(5 * i + floor(t/7 + i2));
         float cross_opacity = clampf2(0.9 - pow(mod2(t2 + i2), 2)) - pow(2, -1000 * pow(mod2(t2 + i2), 2));
-        float t3 = speed_extra * (5*pow(mod2(t2 + i2), 2) - 10*(mod2(t2 + i2)) + 2 - pow(10*(mod2(t2 + i2)), 0.2));
-        float x = cx * hscale + cx1;
-        float y = -cy * hscale + cy1 + t3;
-        float crossf_val = crossf(x, y);
-        float cross_value = 1 - clampf2(crossf_val - 1.4 * hsize + 1);
-        cross_list += 2 * cross_opacity * cross_value;
-        cross_mask = max(cross_mask, cross_value);
-    }
-
-    hsl.x = 0.55 * 0.95 + hsl.x * 0.45;
-    hsl.y = 0.55 * 1.00 + hsl.y * 0.45;
-    hsl.z = 0.55 * 0.90 + hsl.z * 0.45;
-
-    hsl.x = (hsl.x + h_intens * 0.95 * cross_list)/(1 + h_intens * cross_list);
-    hsl.y = (hsl.y + h_intens * 0.3 * cross_list)/(1 + h_intens * cross_list);
-    hsl.z = (hsl.z + h_intens * 0.6 * cross_list)/(1 + h_intens * cross_list);
-
-    tex.rgb = RGB(hsl).rgb;
-    tex.rgb = mix(tex.rgb, vec3(0.0), cross_mask);
-
-    pixel = vec4(pixel.rgb * 0.0 + tex.rgb * tex.a, pixel.a);
-
-    float res = (.5 + .5* cos( (freaky.x) * 2.612 + ( field + -.5 ) *3.14));
-    vec4 textp = RGB(hsl);
-    tex.rgb = textp.rgb;
-    return dissolve_mask(tex*colour, texture_coords, uv);
-}
-
-extern MY_HIGHP_OR_MEDIUMP vec2 mouse_screen_pos;
-extern MY_HIGHP_OR_MEDIUMP float hovering;
-extern MY_HIGHP_OR_MEDIUMP float screen_scale;
-
-#ifdef VERTEX
-vec4 position( mat4 transform_projection, vec4 vertex_position )
-{
-    if (hovering <= 0.){
-        return transform_projection * vertex_position;
-    }
-    float mid_dist = length(vertex_position.xy - 0.5*love_ScreenSize.xy)/length(love_ScreenSize.xy);
-    vec2 mouse_offset = (vertex_position.xy - mouse_screen_pos.xy)/screen_scale;
-    float scale = 0.2*(-0.03 - 0.3*max(0., 0.3-mid_dist))
-                *hovering*(length(mouse_offset)*length(mouse_offset))/(2. -mid_dist);
-
-    return transform_projection * vertex_position + vec4(0,0,0,scale);
-}
-#endif
