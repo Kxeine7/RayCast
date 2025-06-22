@@ -1,2 +1,3 @@
 # RayCast
-a fun balatro mod :3
+shaders don't work , i'll fix them
+wtf is glsl even about 💔
